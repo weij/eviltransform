@@ -3,8 +3,8 @@ defmodule EvilTransform.Geo do
   alias EvilTransform.Pointer
 
   defstruct(
-    lat: nil, 
-    lng: nil,
+    lat: 0.0, 
+    lng: 0.0,
     dlat: 0.01,
     dlng: 0.01,
     m_pointer: %Pointer{},
@@ -24,7 +24,7 @@ defmodule EvilTransform.Geo do
   def outOfChina?(lat, lng) when is_outofchina(lat, lng) do
     true
   end
-  
+
   def outOfChina?(lat, lng) when is_float(lat) and is_float(lng), do: false
   def outOfChina?(_lat, _lng), do: { :error, "input lat/lng required in float number"}
 end
