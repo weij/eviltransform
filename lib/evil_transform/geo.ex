@@ -7,10 +7,10 @@ defmodule EvilTransform.Geo do
     lng: 0.0,
     dlat: 0.01,
     dlng: 0.01,
-    m_pointer: %Coordinate{},
-    p_pointer: %Coordinate{},
-    wgs_pointer: %Coordinate{},
-    gcj_pointer: %Coordinate{},
+    m_coord: %Coordinate{},
+    p_coord: %Coordinate{},
+    wgs_coord: %Coordinate{},
+    gcj_coord: %Coordinate{},
     count: 30,
     out_of_china: true
   )

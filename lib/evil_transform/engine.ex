@@ -6,14 +6,14 @@ defmodule EvilTransform.Engine do
   @ee 0.00669342162296594323
   
   def compute_delta(geo = %Geo{}, lat, lng) do
-    pointer = transform(lng - 105.0, lat - 35.0)
+    coord = transform(lng - 105.0, lat - 35.0)
 
     radlat = lat / 180.0 * :math.pi()
     magic  = :math.sin(radlat)
     magic  = 1 - @ee * magic * magic
     sqrtMagic = :math.sqrt(magic)
-    dlat = (pointer.lat * 180.0) / ((@a * (1 - @ee)) / (magic * sqrtMagic) * :math.pi());
-    dlng = (pointer.lng * 180.0) / (@a / sqrtMagic * :math.cos(radlat) * :math.pi()); 
+    dlat = (coord.lat * 180.0) / ((@a * (1 - @ee)) / (magic * sqrtMagic) * :math.pi());
+    dlng = (coord.lng * 180.0) / (@a / sqrtMagic * :math.cos(radlat) * :math.pi()); 
 
     %{ geo | dlat: dlat, dlng: dlng }
   end
@@ -38,9 +38,9 @@ defmodule EvilTransform.Engine do
     %Coordinate{lat: lat, lng: lng}
   end
 
-  def addup(geo = %{gcj_pointer: gcj, dlat: dlat, dlng: dlng}, wgslat, wgslng) do
+  def addup(geo = %{gcj_coord: gcj, dlat: dlat, dlng: dlng}, wgslat, wgslng) do
     new_gcj = %{ gcj | lat: wgslat + dlat, lng: wgslng + dlng}
-    %{ geo | gcj_pointer: new_gcj }
+    %{ geo | gcj_coord: new_gcj }
   end
 
 

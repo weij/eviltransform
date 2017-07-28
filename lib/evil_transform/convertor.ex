@@ -13,9 +13,9 @@ defmodule EvilTransform.Convertor do
       lng: longitude,
       dlat: @initDelta, 
       dlng: @initDelta,
-      m_pointer: %Coordinate{ lat: latitude - @initDelta, lng: longitude - @initDelta },
-      p_pointer: %Coordinate{ lat: latitude + @initDelta, lng: longitude + @initDelta },
-      wgs_pointer: %Coordinate{ lat: latitude, lng: longitude },
+      m_coord: %Coordinate{ lat: latitude - @initDelta, lng: longitude - @initDelta },
+      p_coord: %Coordinate{ lat: latitude + @initDelta, lng: longitude + @initDelta },
+      wgs_coord: %Coordinate{ lat: latitude, lng: longitude },
       out_of_china: Geo.outOfChina?(latitude, longitude)
     } 
   end
@@ -32,21 +32,21 @@ defmodule EvilTransform.Convertor do
   # -- gcjtowgs(31.278648,120.601099); -- should return   31.280844,120.596931
   #   -- gcjtowgs(30.867195,105.388889); -- should return    30.869472 |     105.385192 |
   #   -- gcjtowgs(22.52612,113.928469); -- should return     22.529158 |     113.923607 |
-  def gcjtowgs(geo = %Geo{wgs_pointer: w, m_pointer: m, p_pointer: p, count: count}) do
+  def gcjtowgs(geo = %Geo{wgs_coord: w, m_coord: m, p_coord: p, count: count}) do
     geo = geo |> do_gcjtowgs(w, m, p, count)
-    { geo, geo.wgs_pointer |> evil() }
+    { geo, geo.wgs_coord |> evil() }
   end
   
    # wgstogcj(31.280844,120.596931); -- should return   31.278648,120.601099 
   def wgstogcj(geo = %Geo{out_of_china: outofchina}) do
-    %{gcj_pointer: gcj} = geo = geo |> do_wgstogcj(outofchina)
+    %{gcj_coord: gcj} = geo = geo |> do_wgstogcj(outofchina)
     { geo, evil(gcj) }
   end
 
   #############################################################
 
   def do_wgstogcj(geo, _invalid_latlng = true), do: geo
-  def do_wgstogcj(geo = %Geo{wgs_pointer: wgs}, _valid_latlng) do
+  def do_wgstogcj(geo = %Geo{wgs_coord: wgs}, _valid_latlng) do
     geo 
     |> Engine.compute_delta(wgs.lat, wgs.lng) 
     |> Engine.addup(wgs.lat, wgs.lng)
@@ -57,7 +57,7 @@ defmodule EvilTransform.Convertor do
   def do_gcjtowgs(geo = %Geo{}, wgs, m, p, count) when count >= 1 do
     new_wgs = average_wgs(wgs, m, p)
 
-    geo = %Geo{gcj_pointer: gcj} = Map.put(geo, :wgs_pointer, new_wgs) |> do_wgstogcj(_not_outofchina = false)
+    geo = %Geo{gcj_coord: gcj} = Map.put(geo, :wgs_coord, new_wgs) |> do_wgstogcj(_not_outofchina = false)
 
     new_dlat = gcj.lat - geo.lat 
     new_dlng = gcj.lng - geo.lng
@@ -70,9 +70,9 @@ defmodule EvilTransform.Convertor do
     
     do_gcjtowgs(
       new_geo, 
-      new_geo.wgs_pointer, 
-      new_geo.m_pointer, 
-      new_geo.p_pointer, 
+      new_geo.wgs_coord, 
+      new_geo.m_coord, 
+      new_geo.p_coord, 
       new_geo.count
     )
   end
@@ -87,20 +87,20 @@ defmodule EvilTransform.Convertor do
 
   defp move_wgslat(geo, _wgs = %{lat: lat}, _m, p, dlat) when dlat > 0 do
     p_with_new_lat = Map.put(p, :lat, lat)
-    Map.put(geo, :p_pointer, p_with_new_lat)
+    Map.put(geo, :p_coord, p_with_new_lat)
   end
   defp move_wgslat(geo, _wgs = %{lat: lat}, m, _p, _dlat) do
     m_with_new_lat = Map.put(m, :lat, lat)
-    Map.put(geo, :m_pointer, m_with_new_lat)
+    Map.put(geo, :m_coord, m_with_new_lat)
   end
 
   defp move_wgslng(geo, _wgs = %{lng: lng}, _m, p, dlng) when dlng > 0 do
     p_with_new_lng = Map.put(p, :lng, lng)
-    Map.put(geo, :p_pointer, p_with_new_lng)
+    Map.put(geo, :p_coord, p_with_new_lng)
   end
   defp move_wgslng(geo, _wgs = %{lng: lng}, m, _p, _dlng) do
     m_with_new_lng = Map.put(m, :lng, lng)
-    Map.put(geo, :m_pointer, m_with_new_lng)
+    Map.put(geo, :m_coord, m_with_new_lng)
   end
 
   defp evil(pointer = %Coordinate{}) do
