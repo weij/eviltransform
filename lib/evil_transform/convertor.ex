@@ -1,6 +1,6 @@
 defmodule EvilTransform.Convertor do
   
-  alias EvilTransform.{Geo, Pointer, Engine}
+  alias EvilTransform.{Coordinate, Engine, Geo}
 
   @initDelta 0.01
   @threshold 0.000001
@@ -13,9 +13,9 @@ defmodule EvilTransform.Convertor do
       lng: longitude,
       dlat: @initDelta, 
       dlng: @initDelta,
-      m_pointer: %Pointer{ lat: latitude - @initDelta, lng: longitude - @initDelta },
-      p_pointer: %Pointer{ lat: latitude + @initDelta, lng: longitude + @initDelta },
-      wgs_pointer: %Pointer{ lat: latitude, lng: longitude },
+      m_pointer: %Coordinate{ lat: latitude - @initDelta, lng: longitude - @initDelta },
+      p_pointer: %Coordinate{ lat: latitude + @initDelta, lng: longitude + @initDelta },
+      wgs_pointer: %Coordinate{ lat: latitude, lng: longitude },
       out_of_china: Geo.outOfChina?(latitude, longitude)
     } 
   end
@@ -42,6 +42,8 @@ defmodule EvilTransform.Convertor do
     %{gcj_pointer: gcj} = geo = geo |> do_wgstogcj(outofchina)
     { geo, evil(gcj) }
   end
+
+  #############################################################
 
   def do_wgstogcj(geo, _invalid_latlng = true), do: geo
   def do_wgstogcj(geo = %Geo{wgs_pointer: wgs}, _valid_latlng) do
@@ -101,7 +103,7 @@ defmodule EvilTransform.Convertor do
     Map.put(geo, :m_pointer, m_with_new_lng)
   end
 
-  defp evil(pointer = %Pointer{}) do
+  defp evil(pointer = %Coordinate{}) do
     "#{pointer.lat}, #{pointer.lng}"
   end  
 

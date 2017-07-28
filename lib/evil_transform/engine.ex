@@ -1,6 +1,6 @@
 defmodule EvilTransform.Engine do
   
-  alias EvilTransform.{Geo, Pointer}
+  alias EvilTransform.{Coordinate, Geo}
 
   @a 6378137.0
   @ee 0.00669342162296594323
@@ -35,7 +35,7 @@ defmodule EvilTransform.Engine do
     lat = lat + (160.0 * :math.sin(y / 12.0 * :math.pi()) + 320 * :math.sin(y / 30.0 * :math.pi())) * 2.0 / 3.0
     lng = lng + (150.0 * :math.sin(x / 12.0 * :math.pi()) + 300.0 * :math.sin(x / 30.0 * :math.pi())) * 2.0 / 3.0
     
-    %Pointer{lat: lat, lng: lng}
+    %Coordinate{lat: lat, lng: lng}
   end
 
   def addup(geo = %{gcj_pointer: gcj, dlat: dlat, dlng: dlng}, wgslat, wgslng) do

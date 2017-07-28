@@ -1,4 +1,4 @@
-defmodule EvilTransform.Pointer do
+defmodule EvilTransform.Coordinate do
   
   defstruct(
     lat: 0.0,

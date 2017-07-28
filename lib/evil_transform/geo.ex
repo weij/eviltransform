@@ -1,16 +1,16 @@
 defmodule EvilTransform.Geo do
 
-  alias EvilTransform.Pointer
+  alias EvilTransform.Coordinate
 
   defstruct(
     lat: 0.0, 
     lng: 0.0,
     dlat: 0.01,
     dlng: 0.01,
-    m_pointer: %Pointer{},
-    p_pointer: %Pointer{},
-    wgs_pointer: %Pointer{},
-    gcj_pointer: %Pointer{},
+    m_pointer: %Coordinate{},
+    p_pointer: %Coordinate{},
+    wgs_pointer: %Coordinate{},
+    gcj_pointer: %Coordinate{},
     count: 30,
     out_of_china: true
   )
