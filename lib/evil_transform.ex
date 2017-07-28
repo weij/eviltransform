@@ -1,18 +1,10 @@
 defmodule EvilTransform do
-  @moduledoc """
-  Documentation for EvilTransform.
-  """
 
-  @doc """
-  Hello world.
+  alias EvilTransform.Convertor
+  alias EvilTransform.Convertor2
 
-  ## Examples
-
-      iex> EvilTransform.hello
-      :world
-
-  """
-  def hello do
-    :world
-  end
+  defdelegate new_geo(lat, lng), to: Convertor
+  defdelegate gcjtowgs(geo), to: Convertor
+  defdelegate new_geo2(lat, lng), to: Convertor2, as: :new_geo
+  defdelegate gcjtowgs2(geo), to: Convertor2, as: :gcjtowgs
 end
