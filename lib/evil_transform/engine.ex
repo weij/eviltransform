@@ -1,4 +1,4 @@
-defmodule EvilTransform.Transform do
+defmodule EvilTransform.Engine do
   
   alias EvilTransform.{Geo, Pointer}
 

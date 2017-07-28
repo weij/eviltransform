@@ -1,6 +1,6 @@
 defmodule EvilTransform.Convertor do
   
-  alias EvilTransform.{Geo, Pointer, Transform}
+  alias EvilTransform.{Geo, Pointer, Engine}
 
   @initDelta 0.01
   @threshold 0.000001
@@ -26,7 +26,7 @@ defmodule EvilTransform.Convertor do
   # %EvilTransform.Pointer{lat: 31.280843281982424, lng: 120.59693001654426}
    # %EvilTransform.Pointer{lat: 30.869473175354003, lng: 105.38519807429383}}
    # %EvilTransform.Pointer{lat: 22.529163670654295, lng: 113.92360864163139}
-  # Geo struct acts as accumulater
+  # use Geo struct acts as accumulater
   # one function one transform 
   # get low hanging fruits first from main workflow
   # -- gcjtowgs(31.278648,120.601099); -- should return   31.280844,120.596931
@@ -46,8 +46,8 @@ defmodule EvilTransform.Convertor do
   def do_wgstogcj(geo, _invalid_latlng = true), do: geo
   def do_wgstogcj(geo = %Geo{wgs_pointer: wgs}, _valid_latlng) do
     geo 
-    |> Transform.compute_delta(wgs.lat, wgs.lng) 
-    |> Transform.addup(wgs.lat, wgs.lng)
+    |> Engine.compute_delta(wgs.lat, wgs.lng) 
+    |> Engine.addup(wgs.lat, wgs.lng)
   end
 
   def do_gcjtowgs(geo = %Geo{dlat: dlat, dlng: dlng}, _, _, _, _) when abs(dlat) < @threshold and abs(dlng) < @threshold, do: geo
