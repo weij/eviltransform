@@ -1,11 +1,9 @@
 defmodule EvilTransform.Engine do
   
-  alias EvilTransform.{Coordinate, Geo}
-
   @a 6378137.0
   @ee 0.00669342162296594323
   
-  def compute_delta(geo = %Geo{}, lat, lng) do
+  def compute_delta(lat, lng) do
     coord = transform(lng - 105.0, lat - 35.0)
 
     radlat = lat / 180.0 * :math.pi()
@@ -14,8 +12,8 @@ defmodule EvilTransform.Engine do
     sqrtMagic = :math.sqrt(magic)
     dlat = (coord.lat * 180.0) / ((@a * (1 - @ee)) / (magic * sqrtMagic) * :math.pi());
     dlng = (coord.lng * 180.0) / (@a / sqrtMagic * :math.cos(radlat) * :math.pi()); 
-
-    %{ geo | dlat: dlat, dlng: dlng }
+    
+    { dlat, dlng }
   end
 
   def transform(x, y) do
@@ -35,13 +33,6 @@ defmodule EvilTransform.Engine do
     lat = lat + (160.0 * :math.sin(y / 12.0 * :math.pi()) + 320 * :math.sin(y / 30.0 * :math.pi())) * 2.0 / 3.0
     lng = lng + (150.0 * :math.sin(x / 12.0 * :math.pi()) + 300.0 * :math.sin(x / 30.0 * :math.pi())) * 2.0 / 3.0
     
-    %Coordinate{lat: lat, lng: lng}
+    %{lat: lat, lng: lng}
   end
-
-  def addup(geo = %{gcj_coord: gcj, dlat: dlat, dlng: dlng}, wgslat, wgslng) do
-    new_gcj = %{ gcj | lat: wgslat + dlat, lng: wgslng + dlng}
-    %{ geo | gcj_coord: new_gcj }
-  end
-
-
 end
