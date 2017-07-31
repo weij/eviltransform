@@ -1,5 +1,9 @@
 defmodule EvilTransform.Convertor do
+  @moduledoc """
+  GCJ-02 and WGS-84 Transformation Flow.
   
+  """
+
   alias EvilTransform.{Coordinate, Engine, Geo}
 
   @initDelta 0.01
@@ -24,12 +28,15 @@ defmodule EvilTransform.Convertor do
 
   ## Example
 
+
     iex> geo = EvilTransform.Convertor.new_geo(22.59414209,114.1251447)
     iex> EvilTransform.gcjtowgs(geo)
     { %EvilTransform.Geo{...}, "22.59682824722656, 114.12004399199218" }
 
     iex> EvilTransform.Convertor.new_geo(39.061111,121.787113) |> EvilTransform.gcjtowgs()
     { %EvilTransform.Geo{...}, "39.06008011621094, 121.78199886425783" }
+
+
   """
   def gcjtowgs(geo = %Geo{count: count}) do
     new_geo = do_gcjtowgs(geo, count)
@@ -41,9 +48,12 @@ defmodule EvilTransform.Convertor do
   
   ## Example
 
+
     iex> geo = EvilTransform.Convertor.new_geo(31.280844,120.596931)
     iex> EvilTransform.Convertor.wgstogcj(geo)
     { %Geo{}, "31.278648624428175, 120.60109998322247" }
+
+
   """
   def wgstogcj(geo = %Geo{lat: lat, lng: lng}) do
     case do_wgstogcj(geo, Geo.outOfChina?(lat, lng)) do

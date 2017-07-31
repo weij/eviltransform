@@ -28,7 +28,7 @@ defmodule EvilTransform.Mixfile do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.16.2"},
+      {:ex_doc, "~> 0.16.2", override: true, only: :dev},
     ]
   end
 end

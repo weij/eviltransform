@@ -1,4 +1,8 @@
 defmodule EvilTransform do
+  @moduledoc """
+  EvilTransform Public API.
+  
+  """
 
   alias EvilTransform.Convertor
   

@@ -1,5 +1,9 @@
 defmodule EvilTransform.Geo do
-
+  @moduledoc """
+  This module defines a `EvilTransform.Geo` struct and the main functions
+  for working with Plug connections.  
+  
+  """
   alias EvilTransform.Coordinate
 
   defstruct(
@@ -26,10 +30,13 @@ defmodule EvilTransform.Geo do
 
   ## Example
 
+
     iex> EvilTransform.Geo.outOfChina?(22.596828,114.120043)
     false
     iex> EvilTransform.Geo.outOfChina?(35.652832,139.839478)
     true
+
+
   """
   def outOfChina?(lat, lng) when is_outofchina(lat, lng) do
     true

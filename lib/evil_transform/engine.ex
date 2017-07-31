@@ -1,5 +1,9 @@
 defmodule EvilTransform.Engine do
-  
+  @moduledoc """
+  Core transformation logic - transform and delta.
+
+  """
+
   @a 6378137.0
   @ee 0.00669342162296594323
   
