@@ -3,6 +3,18 @@ defmodule EvilTransform.Engine do
   @a 6378137.0
   @ee 0.00669342162296594323
   
+  @doc """
+  Calculate lat/lng deltas according to the given WGS84 lat/lng.
+
+  Return a tuple, which contains lat/lng deltas, respectively.
+
+  ## Example
+
+    iex> EvilTransform.Engine.compute_delta(43.925956,81.304986)
+    {0.0012107347458435362, 0.0029884174595647315}
+    iex> EvilTransform.Engine.compute_delta(29.337366,120.122021)
+    {-0.002467828398120453, 0.004698765444104658}
+  """
   def compute_delta(lat, lng) do
     coord = transform(lng - 105.0, lat - 35.0)
 
@@ -16,7 +28,7 @@ defmodule EvilTransform.Engine do
     { dlat, dlng }
   end
 
-  def transform(x, y) do
+  defp transform(x, y) do
     xy = x * y
     absX = abs(x) |> :math.sqrt()
     d = (20.0 * :math.sin(6.0 * x * :math.pi()) + 20.0 * :math.sin(2.0 * x * :math.pi())) * 2.0 / 3.0

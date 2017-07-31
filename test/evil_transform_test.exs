@@ -1,8 +1,8 @@
 defmodule EvilTransformTest do
   use ExUnit.Case
-  doctest EvilTransform
+  # doctest EvilTransform
 
-  test "greets the world" do
-    assert EvilTransform.hello() == :world
-  end
+  # test "greets the world" do
+  #   assert EvilTransform.hello() == :world
+  # end
 end

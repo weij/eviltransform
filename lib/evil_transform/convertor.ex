@@ -38,10 +38,10 @@ defmodule EvilTransform.Convertor do
   end
   
    # wgstogcj(31.280844,120.596931); -- should return   31.278648,120.601099 
-  def wgstogcj(geo = %Geo{out_of_china: outofchina}) do
-    %{gcj_coord: gcj} = geo = geo |> do_wgstogcj(outofchina)
+  def wgstogcj(geo = %Geo{lat: lat, lng: lng}) do
+    %{gcj_coord: gcj} = geo = do_wgstogcj(geo, Geo.outOfChina?(lat, lng))
     { geo, evil(gcj) }
-  end
+  end  
 
   #############################################################
 
