@@ -15,38 +15,49 @@ defmodule EvilTransform.Convertor do
       dlng: @initDelta,
       m_coord: %Coordinate{ lat: latitude - @initDelta, lng: longitude - @initDelta },
       p_coord: %Coordinate{ lat: latitude + @initDelta, lng: longitude + @initDelta },
-      wgs_coord: %Coordinate{ lat: latitude, lng: longitude },
-      out_of_china: Geo.outOfChina?(latitude, longitude)
+      wgs_coord: %Coordinate{ lat: latitude, lng: longitude }
     } 
   end
-  
-  # {31.1774276, 121.5272106, 31.17530398364597, 121.531541859215}, // shanghai
-  # {22.543847, 113.912316, 22.540796131694766, 113.9171764808363}, // shenzhen
-  # {39.911954, 116.377817, 39.91334545536069, 116.38404722455657}
-  # %EvilTransform.Pointer{lat: 31.280843281982424, lng: 120.59693001654426}
-   # %EvilTransform.Pointer{lat: 30.869473175354003, lng: 105.38519807429383}}
-   # %EvilTransform.Pointer{lat: 22.529163670654295, lng: 113.92360864163139}
-  # use Geo struct acts as accumulater
-  # one function one transform 
-  # get low hanging fruits first from main workflow
-  # -- gcjtowgs(31.278648,120.601099); -- should return   31.280844,120.596931
-  #   -- gcjtowgs(30.867195,105.388889); -- should return    30.869472, 105.385192
-  #   -- gcjtowgs(22.52612,113.928469); -- should return     22.529158, 113.923607
+
+  @doc """
+  Convert GCJ-02 coordinate to WGS-84 coordinate.
+
+  ## Example
+
+    iex> geo = EvilTransform.Convertor.new_geo(22.59414209,114.1251447)
+    iex> EvilTransform.gcjtowgs(geo)
+    { %EvilTransform.Geo{...}, "22.59682824722656, 114.12004399199218" }
+
+    iex> EvilTransform.Convertor.new_geo(39.061111,121.787113) |> EvilTransform.gcjtowgs()
+    { %EvilTransform.Geo{...}, "39.06008011621094, 121.78199886425783" }
+  """
   def gcjtowgs(geo = %Geo{count: count}) do
-    geo = geo |> do_gcjtowgs(count)
-    { geo, geo.wgs_coord |> evil() }
+    new_geo = do_gcjtowgs(geo, count)
+    { new_geo, evil(new_geo.wgs_coord) }
   end
+
+  @doc """
+  Convert WGS-84 coordinate to GCJ-02 coordinate.
   
-   # wgstogcj(31.280844,120.596931); -- should return   31.278648,120.601099 
+  ## Example
+
+    iex> geo = EvilTransform.Convertor.new_geo(31.280844,120.596931)
+    iex> EvilTransform.Convertor.wgstogcj(geo)
+    { %Geo{}, "31.278648624428175, 120.60109998322247" }
+  """
   def wgstogcj(geo = %Geo{lat: lat, lng: lng}) do
-    %{gcj_coord: gcj} = geo = do_wgstogcj(geo, Geo.outOfChina?(lat, lng))
-    { geo, evil(gcj) }
+    case do_wgstogcj(geo, Geo.outOfChina?(lat, lng)) do
+      { geo, :outOfChina } ->
+        { geo, "Error: lat/lng out of China"}
+      geo = %{gcj_coord: gcj} ->
+        { geo, evil(gcj) }
+    end    
   end  
 
   #############################################################
 
-  def do_wgstogcj(geo, _invalid_latlng = true), do: geo
-  def do_wgstogcj(geo = %{wgs_coord: %{lat: lat, lng: lng}}, _valid_latlng) do
+  def do_wgstogcj(geo = %Geo{}, _invalid_latlng = true), do: { geo, :outOfChina }
+  def do_wgstogcj(geo = %Geo{wgs_coord: %{lat: lat, lng: lng}}, _valid_latlng) do
     {dlat, dlng} = Engine.compute_delta(lat, lng) 
     %{ geo | gcj_coord: %Coordinate{ lat: lat + dlat, lng: lng + dlng } }
   end
@@ -74,28 +85,28 @@ defmodule EvilTransform.Convertor do
     %{ geo | dlat: gcj.lat - lat, dlng: gcj.lng - lng}
   end
   
-  defp move_wgslat(geo = %{dlat: dlat, p_coord: p, wgs_coord: %{lat: lat}}) when dlat > 0 do
+  defp move_wgslat(geo = %Geo{dlat: dlat, p_coord: p, wgs_coord: %{lat: lat}}) when dlat > 0 do
     p_with_new_lat = Map.put(p, :lat, lat)
     Map.put(geo, :p_coord, p_with_new_lat)
   end
-  defp move_wgslat(geo = %{m_coord: m, wgs_coord: %{lat: lat}}) do
+  defp move_wgslat(geo = %Geo{m_coord: m, wgs_coord: %{lat: lat}}) do
     m_with_new_lat = Map.put(m, :lat, lat)
     Map.put(geo, :m_coord, m_with_new_lat)    
   end
-  defp move_wgslng(geo = %{dlng: dlng, p_coord: p, wgs_coord: %{lng: lng}}) when dlng > 0 do
+  defp move_wgslng(geo = %Geo{dlng: dlng, p_coord: p, wgs_coord: %{lng: lng}}) when dlng > 0 do
     p_with_new_lng = Map.put(p, :lng, lng)
     Map.put(geo, :p_coord, p_with_new_lng)
   end
-  defp move_wgslng(geo = %{m_coord: m, wgs_coord: %{lng: lng}}) do
+  defp move_wgslng(geo = %Geo{m_coord: m, wgs_coord: %{lng: lng}}) do
     m_with_new_lng = Map.put(m, :lng, lng)
     Map.put(geo, :m_coord, m_with_new_lng)
   end
 
-  defp count_down(geo, by \\ 1) do
+  defp count_down(geo = %Geo{}, by \\ 1) do
     Map.put(geo, :count, geo.count - by)
   end
 
-  defp average_wgs(geo, wgs, m, p) do
+  defp average_wgs(geo = %Geo{}, wgs, m, p) do
     new_wgs = %{ wgs | lat: (m.lat + p.lat) / 2, lng: (m.lng + p.lng) / 2 }
     Map.put(geo, :wgs_coord, new_wgs)
   end
