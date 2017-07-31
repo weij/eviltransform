@@ -4,7 +4,7 @@ defmodule EvilTransform do
   
   """
 
-  alias EvilTransform.Convertor
+  alias EvilTransform.{Convertor, Engine}
   
   @doc """
   Build a Geo struct according to given latitude and longitude.
@@ -24,4 +24,9 @@ defmodule EvilTransform do
   accurate rate within 5m.
   """
   defdelegate wgstogcj(geo), to: Convertor
+  
+  @doc """
+  Return distance in meter between point(alat, alng) and point(blat, blng).
+  """
+  defdelegate distance(alat, alng, blat, blng), to: Engine
 end

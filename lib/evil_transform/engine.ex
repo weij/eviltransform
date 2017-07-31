@@ -6,6 +6,7 @@ defmodule EvilTransform.Engine do
 
   @a 6378137.0
   @ee 0.00669342162296594323
+  @earthR 6371000.0
   
   @doc """
   Calculate lat/lng deltas according to the given WGS84 lat/lng.
@@ -51,4 +52,21 @@ defmodule EvilTransform.Engine do
     
     %{lat: lat, lng: lng}
   end
+
+  @doc """
+  Return distance in meter between point(alat, alng) and point(blat, blng).
+  """
+  def distance(alat, alng, blat, blng) do
+    with x = :math.cos( alat * :math.pi / 180 ) * :math.cos( blat * :math.pi / 180 )
+        * :math.cos( (alng - blng) * :math.pi / 180 ),
+         y = :math.sin( alat * :math.pi / 180 ) * :math.sin( blat * :math.pi / 180 ),
+         s = total(x + y),
+         alpha = :math.acos(s) do
+      alpha * @earthR      
+    end
+  end
+
+  defp total(s) when s > 1, do: 1
+  defp total(s) when s < -1, do: -1
+  defp total(s), do: s
 end
