@@ -11,8 +11,7 @@ defmodule EvilTransform.Geo do
     p_coord: %Coordinate{},
     wgs_coord: %Coordinate{},
     gcj_coord: %Coordinate{},
-    count: 30,
-    out_of_china: true
+    count: 30
   )
   
   @doc false
