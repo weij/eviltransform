@@ -14,7 +14,7 @@ defmodule EvilTransform do
   @doc """
   Convert GCJ-02 coordinate to WGS-84 coordinate.
 
-  accurate rate within 1km.
+  accurate rate within 10m.
   """
   defdelegate gcjtowgs(geo), to: Convertor
 
